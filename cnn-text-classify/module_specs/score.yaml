@@ -1,0 +1,59 @@
+name: Multiclass TextCNN Classification Predict Model
+id: f5793e3a-3b2a-485f-afb4-a00666a71b5f
+category: Machine Learning\Score
+description: Predict the classes through the trained TextCNN model
+inputs:
+- name: Predict data file
+  type: Dataset
+  connectable: True
+  description: predict data
+- name: Text column number
+  type: String
+  connectable: False
+  description: text column name
+- name: Model file
+  type: Model
+  connectable: True
+  description: the model file
+outputs:
+- name: Predict result
+  type: Dataset
+  connectable: True
+  description: Predict result
+- name: Logs
+  type: Dataset
+  connectable: False
+  description: the logs in training processing
+implementation:
+  container:
+    conda:
+      content:
+        name: project_environment
+        channels:
+        - defaults
+        dependencies:
+        - python=3.6.8
+        - pip:
+          - --extra-index-url=https://test.pypi.org/simple
+          - alghost==0.0.53
+          - pyarrow==0.12.1
+          - nltk==3.4
+          - numpy==1.16.2
+          - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
+          - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+    command:
+    - python
+    - predictor.py
+    args:
+    - -predict-file
+    - inputValue: Predict data file
+    - -text-column
+    - inputValue: Text column number
+    - -save-dir
+    - inputValue: Model file
+    - -predict-result-file
+    - outputPath: Predict result
+    - -logs
+    - outputPath: Logs
+
+
