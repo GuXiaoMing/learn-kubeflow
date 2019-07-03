@@ -1,4 +1,4 @@
-name: Multiclass TextCNN Classification Predict Model
+name: TextCNN Predict
 id: f5793e3a-3b2a-485f-afb4-a00666a71b5f
 category: Machine Learning\Score
 description: Predict the classes through the trained TextCNN model
