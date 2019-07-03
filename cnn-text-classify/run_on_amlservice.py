@@ -97,6 +97,6 @@ if __name__ == '__main__':
         subscription_id="e9b2ec51-5c94-4fa8-809a-dc1e695e4896",
         resource_group="cus-test-cs"
     )
-    compute_name = 'gpu'
+    compute_name = 'gpu0'
     pipeline_steps = create_pipeline_steps(compute_name)
     run_pipeline(steps=pipeline_steps, experiment_name='cnn-text-classify', workspace=workspace)
