@@ -1,0 +1,110 @@
+name: TextCNN Train
+id: f9b3dea7-48d2-4126-bd0c-f5c6588c4c29
+category: Machine Learning\Train
+description: Trains a TextCNN model in a supervised manner
+inputs:
+- name: Word embeddding dim
+  default: 300
+  type: Int
+  connectable: False
+  description: the dimention of word embeddings
+- name: Kernel num
+  default: 128
+  type: Int
+  connectable: False
+  description: number of each kind of kernel
+- name: Dropout
+  default: 0.5
+  type: Float
+  connectable: False
+  description: the probability for dropout
+- name: Train data file
+  type: Dataset
+  connectable: True
+  description: Training data
+- name: Batch size
+  default: 32
+  type: Int
+  connectable: False
+  description: Batch size
+- name: L2 regularization weight
+  default: 0
+  type: Float
+  connectable: False
+  description: L2 regularization weight
+- name: Test interval
+  default: 100
+  type: Int
+  connectable: False
+  description: how many steps to wait before testing
+- name: Test data file
+  type: Dataset
+  connectable: True
+  description: Test data
+- name: Label column number
+  default: 0
+  type: String
+  connectable: False
+  description: Select the column that contains the label or outcome column
+- name: Text column number
+  default: 2
+  type: String
+  connectable: False
+  description: Select the column that contains the Text or input column
+outputs:
+- name: Trained model
+  type: Model
+  connectable: True
+  description: Trained learner
+- name: Logs
+  type: Model
+  connectable: False
+  description: the logs in training processing
+implementation:
+  container:
+    conda:
+      content:
+        name: project_environment
+        channels:
+        - defaults
+        dependencies:
+        - python=3.6.8
+        - pip:
+          - --extra-index-url=https://test.pypi.org/simple
+          - alghost==0.0.53
+          - pyarrow==0.12.1
+          - nltk==3.4
+          - numpy==1.16.2
+          - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
+          - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+          - git+https://github.com/Angeliacs/learn-kubeflow.git@chsi/cnn_text_classify#subdirectory=cnn-text-classify
+    command:
+    - python
+    - trainer.py
+    args:
+    - -embed-dim
+    - inputValue: Word embeddding dim
+    - -kernel-num
+    - inputValue: Kernel num
+    - -dropout
+    - inputValue: Dropout
+    - -train-file
+    - inputValue: Train data file
+    - -test-file
+    - inputValue: Test data file
+    - -label-column
+    - inputValue: Label column number
+    - -text-column
+    - inputValue: Text column number
+    - -batch-size
+    - inputValue: Batch size
+    - -l2
+    - inputValue: L2 regularization weight
+    - -test-interval
+    - inputValue: Test interval
+    - -save-dir
+    - outputPath: Trained model
+    - -logs
+    - outputPath: Logs
+
+    
