@@ -58,10 +58,6 @@ outputs:
   type: Model
   connectable: True
   description: Vocab for predict the sentence
-- name: Logs
-  type: Model
-  connectable: True
-  description: The logs in training processing
 implementation:
   container:
     meta:
@@ -112,7 +108,6 @@ implementation:
     - outputPath: Trained model
     - -vocab-path
     - outputPath: Vocab
-    - -log-dir
-    - outputPath: Logs
+
 
     

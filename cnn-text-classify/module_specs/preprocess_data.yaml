@@ -1,16 +1,16 @@
 name: TextCNN Word to Id
 id: 89b03051-b9d1-4a79-8c8c-f627290b875a
-category: Data Transformation\Manipulation
+category: Machine Learning\Preprocess
 description: Transform Word to Id
 inputs:
-- name: Input text
-  type: Dataset
-  connectable: True
-  description: Input text
 - name: Input vocab
   type: Model
   connectable: True
   description: The vocabulary file
+- name: Input text
+  type: Dataset
+  connectable: True
+  description: Input text
 outputs:
 - name: Processed data
   type: Dataset
@@ -42,9 +42,9 @@ implementation:
     - -m
     - csmodel.preprocess_data
     args:
-    - -input-data
-    - inputValue: Input text
     - -input-vocab
     - inputValue: Input vocab
+    - -input-data
+    - inputValue: Input text
     - -output-data
     - outputPath: Processed data

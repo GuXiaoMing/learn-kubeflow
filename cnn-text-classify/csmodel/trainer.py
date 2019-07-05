@@ -225,36 +225,11 @@ class TextCNN(nn.Module):
 if __name__ == '__main__':
     args = train_args()
     print_parameters(args)
-    if not os.path.isdir(args.log_dir):
-        os.makedirs(args.log_dir)
+
     if not os.path.isdir(args.trained_model):
         os.makedirs(args.trained_model)
-    logname = os.path.join(args.log_dir, "/train.log")
+    logname = os.path.join(args.trained_model, "/train.log")
     logging.basicConfig(filename=logname, filemode='w', level=logging.DEBUG)
-
-    # Dump data_type.json as a work around until SMT deploys
-    dct = {
-        "Id": "ILearnerDotNet",
-        "Name": "ILearner .NET file",
-        "ShortName": "Model",
-        "Description": "A .NET serialized ILearner",
-        "IsDirectory": False,
-        "Owner": "Microsoft Corporation",
-        "FileExtension": "ilearner",
-        "ContentType": "application/octet-stream",
-        "AllowUpload": False,
-        "AllowPromotion": False,
-        "AllowModelPromotion": True,
-        "AuxiliaryFileExtension": None,
-        "AuxiliaryContentType": None
-    }
-    with open(os.path.join(args.log_dir, 'data_type.json'), 'w') as f:
-        json.dump(dct, f)
-
-    # Dump data.ilearner as a work around until data type design
-    visualization = os.path.join(args.log_dir, "data.ilearner")
-    with open(visualization, 'w') as file:
-        file.writelines('{}')
 
     trainer = Trainer(args)
     with open(os.path.join(args.trained_model, 'config.pkl'), 'wb') as f:
