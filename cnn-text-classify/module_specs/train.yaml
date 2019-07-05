@@ -7,7 +7,7 @@ inputs:
   type: Dataset
   connectable: True
   description: Training data
-- name: Test data file
+- name: Validation data file
   type: Dataset
   connectable: True
   description: Test data
@@ -97,7 +97,7 @@ implementation:
     - -train-file
     - inputValue: Train data file
     - -test-file
-    - inputValue: Test data file
+    - inputValue: Validation data file
     - -label-column
     - inputValue: Label column name
     - -text-column

@@ -79,7 +79,7 @@ def create_pipeline_steps(compute_name):
 
 
     train.inputs['Train data file'].connect(import_data.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b756'])
-    train.inputs['Test data file'].connect(import_data_test.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
+    train.inputs['Validation data file'].connect(import_data_test.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
 
 
 
