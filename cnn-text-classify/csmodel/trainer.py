@@ -12,6 +12,7 @@ from .args_util import *
 from .data_util import process_data, load_data
 import torch
 import torch.nn as nn
+import json
 
 class Trainer():
     def __init__(self, args):
@@ -29,6 +30,33 @@ class Trainer():
             pickle.dump(self.label2id, f)
         with open(self.args.vocab_path + '/' + 'id2label.pkl', 'wb') as f:
             pickle.dump(self.id2label, f)
+
+
+
+        # Dump data_type.json as a work around until SMT deploys
+        dct = {
+            "Id": "ILearnerDotNet",
+            "Name": "ILearner .NET file",
+            "ShortName": "Model",
+            "Description": "A .NET serialized ILearner",
+            "IsDirectory": False,
+            "Owner": "Microsoft Corporation",
+            "FileExtension": "ilearner",
+            "ContentType": "application/octet-stream",
+            "AllowUpload": False,
+            "AllowPromotion": False,
+            "AllowModelPromotion": True,
+            "AuxiliaryFileExtension": None,
+            "AuxiliaryContentType": None
+        }
+        with open(os.path.join(self.args.vocab_path, 'data_type.json'), 'w') as f:
+            json.dump(dct, f)
+
+        # Dump data.ilearner as a work around until data type design
+        visualization = os.path.join(self.args.vocab_path, "data.ilearner")
+        with open(visualization, 'w') as file:
+            file.writelines('{}')
+
 
         self.train_iter, self.test_iter = load_data(self.args.train_file, self.args.test_file, self.word2id,
                                                     self.label2id, self.args)
@@ -128,11 +156,36 @@ class Trainer():
     def save(self, save_prefix, steps):
         if not os.path.isdir(self.args.trained_model):
             os.makedirs(self.args.trained_model)
-        save_prefix = os.path.join(self.args.save_dir, save_prefix)
+        save_prefix = os.path.join(self.args.trained_model, save_prefix)
         # with open(save_prefix + "/model.pkl", "wb") as fp:
         #     cloudpickle.dump(self.model, fp)
         save_path = '%s_steps_%d.pt' % (save_prefix, 100)
         torch.save(self.model.state_dict(), save_path)
+
+
+        # Dump data_type.json as a work around until SMT deploys
+        dct = {
+            "Id": "ILearnerDotNet",
+            "Name": "ILearner .NET file",
+            "ShortName": "Model",
+            "Description": "A .NET serialized ILearner",
+            "IsDirectory": False,
+            "Owner": "Microsoft Corporation",
+            "FileExtension": "ilearner",
+            "ContentType": "application/octet-stream",
+            "AllowUpload": False,
+            "AllowPromotion": False,
+            "AllowModelPromotion": True,
+            "AuxiliaryFileExtension": None,
+            "AuxiliaryContentType": None
+        }
+        with open(os.path.join(self.args.trained_model, 'data_type.json'), 'w') as f:
+            json.dump(dct, f)
+
+        # Dump data.ilearner as a work around until data type design
+        visualization = os.path.join(self.args.trained_model, "data.ilearner")
+        with open(visualization, 'w') as file:
+            file.writelines('{}')
 
 class TextCNN(nn.Module):
     def __init__(self, args):
@@ -178,6 +231,30 @@ if __name__ == '__main__':
         os.makedirs(args.trained_model)
     logname = os.path.join(args.log_dir, "/train.log")
     logging.basicConfig(filename=logname, filemode='w', level=logging.DEBUG)
+
+    # Dump data_type.json as a work around until SMT deploys
+    dct = {
+        "Id": "ILearnerDotNet",
+        "Name": "ILearner .NET file",
+        "ShortName": "Model",
+        "Description": "A .NET serialized ILearner",
+        "IsDirectory": False,
+        "Owner": "Microsoft Corporation",
+        "FileExtension": "ilearner",
+        "ContentType": "application/octet-stream",
+        "AllowUpload": False,
+        "AllowPromotion": False,
+        "AllowModelPromotion": True,
+        "AuxiliaryFileExtension": None,
+        "AuxiliaryContentType": None
+    }
+    with open(os.path.join(args.log_dir, 'data_type.json'), 'w') as f:
+        json.dump(dct, f)
+
+    # Dump data.ilearner as a work around until data type design
+    visualization = os.path.join(args.log_dir, "data.ilearner")
+    with open(visualization, 'w') as file:
+        file.writelines('{}')
 
     trainer = Trainer(args)
     with open(os.path.join(args.trained_model, 'config.pkl'), 'wb') as f:

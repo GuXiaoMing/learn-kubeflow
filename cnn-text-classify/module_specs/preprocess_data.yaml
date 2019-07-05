@@ -18,6 +18,9 @@ outputs:
   description: Transformed data
 implementation:
   container:
+    meta:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: true
     conda:
       content:
         name: project_environment
@@ -36,7 +39,8 @@ implementation:
           - git+https://github.com/Angeliacs/learn-kubeflow.git@chsi/cnn_text_classify#subdirectory=cnn-text-classify
     command:
     - python
-    - preprocess_data.py
+    - -m
+    - csmodel.preprocess_data
     args:
     - -input-data
     - inputValue: Input text

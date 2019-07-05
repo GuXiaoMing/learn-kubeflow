@@ -42,3 +42,24 @@ if __name__ == '__main__':
     print("write to ", os.path.join(args.output_data, 'data.dataset.parquet'))
     output_data.to_parquet(os.path.join(args.output_data, 'data.dataset.parquet'), engine='pyarrow')
 
+    import json
+
+    # Dump data_type.json as a work around until SMT deploys
+    dct = {
+        "Id": "Dataset",
+        "Name": "Dataset .NET file",
+        "ShortName": "Dataset",
+        "Description": "A serialized DataTable supporting partial reads and writes",
+        "IsDirectory": False,
+        "Owner": "Microsoft Corporation",
+        "FileExtension": "dataset.parquet",
+        "ContentType": "application/octet-stream",
+        "AllowUpload": False,
+        "AllowPromotion": True,
+        "AllowModelPromotion": False,
+        "AuxiliaryFileExtension": None,
+        "AuxiliaryContentType": None
+    }
+    with open(os.path.join(args.output_data, 'data_type.json'), 'w') as f:
+        json.dump(dct, f)
+

@@ -1,4 +1,4 @@
-name: TextCNN Predict
+name: Multiclass TextCNN Classification Predict Model
 id: f5793e3a-3b2a-485f-afb4-a00666a71b5f
 category: Machine Learning\Score
 description: Predict the classes through the trained TextCNN model
@@ -36,6 +36,7 @@ implementation:
           - numpy==1.16.2
           - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
           - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+          - git+https://github.com/Angeliacs/learn-kubeflow.git@chsi/cnn_text_classify#subdirectory=cnn-text-classify
     command:
     - python
     - -m

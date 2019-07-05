@@ -7,7 +7,7 @@ import torch
 from .TextCNN import TextCNN
 from .args_util import predict_args
 from torch.autograd import Variable
-
+import json
 
 class Predictor():
     def __init__(self, model_folder):
@@ -57,3 +57,23 @@ if __name__ == '__main__':
 
     out_df = predictor.predict(df)
     out_df.to_parquet(os.path.join(args.predict_result_path, 'data.dataset.parquet'))
+
+
+    # Dump data_type.json as a work around until SMT deploys
+    dct = {
+        "Id": "Dataset",
+        "Name": "Dataset .NET file",
+        "ShortName": "Dataset",
+        "Description": "A serialized DataTable supporting partial reads and writes",
+        "IsDirectory": False,
+        "Owner": "Microsoft Corporation",
+        "FileExtension": "dataset.parquet",
+        "ContentType": "application/octet-stream",
+        "AllowUpload": False,
+        "AllowPromotion": True,
+        "AllowModelPromotion": False,
+        "AuxiliaryFileExtension": None,
+        "AuxiliaryContentType": None
+    }
+    with open(os.path.join(args.predict_result_path, 'data_type.json'), 'w') as f:
+        json.dump(dct, f)
