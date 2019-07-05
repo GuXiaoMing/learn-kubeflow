@@ -1,14 +1,21 @@
 import os
+
 from tools.amlservice_scaffold.amlservice_pipeline import Module, PipelineStep, run_pipeline
-from azureml.core import Experiment, RunConfiguration, Workspace
+from azureml.core import RunConfiguration, Workspace
 from azureml.core.environment import DEFAULT_GPU_IMAGE
 
-
 MODULE_SPECS_FOLDER = 'module_specs'
+
+class TextCNNConstants:
+    WORKSPACE_NAME = 'linchi_test_service_workspace'
+    SUBSCRIPTION_ID = 'e9b2ec51-5c94-4fa8-809a-dc1e695e4896'
+    RESOURCE_GROUP = 'linchires'
+    COMPUTE_NAME = 'gpu-nc6'
 
 
 def spec_file_path(spec_file_name):
     return os.path.join(MODULE_SPECS_FOLDER, spec_file_name)
+
 
 def get_workspace(name, subscription_id, resource_group):
     return Workspace.get(
@@ -32,31 +39,51 @@ def get_run_config(comp, compute_name, use_gpu=False):
 
     return run_config
 
+
+
 def create_pipeline_steps(compute_name):
     # Load module spec from module_specs file
     import_data = Module(
         spec_file_path=spec_file_path('import_data.yaml'),
-        source_directory='script'
+        source_directory='csmodel'
     )
-    import_data.params['command json'].assign('import_data.json')
 
-    import_data2 = Module(
+    import_data_test = Module(
         spec_file_path=spec_file_path('import_data2.yaml'),
-        source_directory='script'
+        source_directory='csmodel'
     )
-    import_data2.params['command json'].assign('import_data2.json')
 
     train = Module(
         spec_file_path=spec_file_path('train.yaml'),
-        source_directory='script'
+        source_directory='csmodel'
     )
 
+    preprocess_module = Module(
+        spec_file_path=spec_file_path('preprocess_data.yaml'),
+        source_directory='csmodel'
+    )
+    score = Module(
+        spec_file_path=spec_file_path('score.yaml'),
+        source_directory='csmodel'
+    )
+
+    run_config_import_train_data = get_run_config(import_data, compute_name)
+    run_config_import_test_data = get_run_config(import_data_test, compute_name)
+    run_config_preprocess_test_data = get_run_config(preprocess_module, compute_name)
+    run_config_train = get_run_config(train, compute_name, use_gpu=True)
+    run_config_score = get_run_config(score, compute_name, use_gpu=True)
+
+
+    import_data.params['command json'].assign('import_data.json')
+    import_data_test.params['command json'].assign('import_data2.json')
+
+
     train.inputs['Train data file'].connect(import_data.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b756'])
-    train.inputs['Test data file'].connect(import_data2.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
+    train.inputs['Test data file'].connect(import_data_test.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
+
+
 
     # Assign parameters
-    # train.params['Train data file'].assign('')
-    # train.params['Test data file'].assign('IMDB/test.csv')
     train.params['Label column number'].assign('label')
     train.params['Text column number'].assign('text')
     train.params['Word embeddding dim'].assign(300)
@@ -67,36 +94,28 @@ def create_pipeline_steps(compute_name):
     train.params['L2 regularization weight'].assign(0.)
     train.params['Test interval'].assign(100)
 
-    score = Module(
-        spec_file_path=spec_file_path('score.yaml'),
-        source_directory='script'
-    )
-    score.inputs['Model file'].connect(train.outputs['Trained model'])
-    score.inputs['Predict data file'].connect(import_data2.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
-    score.params['Text column number'].assign('text')
+    preprocess_module.inputs['Input vocab'].connect(train.outputs['Vocab'])
+    preprocess_module.inputs['Input text'].connect(import_data_test.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
 
-    # Run config setting
-    run_config_import_train_data = get_run_config(import_data, compute_name)
-    run_config_import_test_data = get_run_config(import_data2, compute_name)
-    run_config_train = get_run_config(train, compute_name, use_gpu=True)
-    run_config_eval = get_run_config(score, compute_name, use_gpu=True)
+    score.inputs['Model file'].connect(train.outputs['Trained model'])
+    score.inputs['Predict data'].connect(preprocess_module.outputs["Transformed data"])
 
     pipeline_step_list = [
         PipelineStep(import_data, run_config=run_config_import_train_data),
-        PipelineStep(import_data2, run_config=run_config_import_test_data),
+        PipelineStep(import_data_test, run_config=run_config_import_test_data),
         PipelineStep(train, run_config=run_config_train),
-        PipelineStep(score, run_config=run_config_eval)
+        PipelineStep(preprocess_module, run_config=run_config_preprocess_test_data),
+        PipelineStep(score, run_config=run_config_score)
     ]
     return pipeline_step_list
 
-
-
 if __name__ == '__main__':
+    print( os.path.dirname('run_on_amlservice.py') )
     workspace = get_workspace(
-        name="cus-test-cs",
-        subscription_id="e9b2ec51-5c94-4fa8-809a-dc1e695e4896",
-        resource_group="cus-test-cs"
+        name=TextCNNConstants.WORKSPACE_NAME,
+        subscription_id=TextCNNConstants.SUBSCRIPTION_ID,
+        resource_group=TextCNNConstants.RESOURCE_GROUP
     )
-    compute_name = 'gpu0'
+    compute_name = TextCNNConstants.COMPUTE_NAME
     pipeline_steps = create_pipeline_steps(compute_name)
-    run_pipeline(steps=pipeline_steps, experiment_name='cnn-text-classify', workspace=workspace)
+    run_pipeline(steps=pipeline_steps, experiment_name='cnn-text-classify_new', workspace=workspace)

@@ -1,40 +1,41 @@
-import pyarrow.parquet as pq
+import pickle
+import logging
 import pickle
 import sys
-from TextCNN import TextCNN as Model
+import pyarrow.parquet as pq
+
 import torch.nn.functional as F
 from torch.autograd import Variable
-from args_util import *
-from data_util import *
-import logging
+
+# from .TextCNN import TextCNN as Model
+from .args_util import *
+from .data_util import process_data, load_data
+import torch
+import torch.nn as nn
+import cloudpickle
 
 class Trainer():
     def __init__(self, args):
         self.args = args
-        if not self.args.dict:
-            logging.info('processing data...')
-            self.word2id, self.id2word, self.label2id, self.id2label, self.max_len \
-                = process_data(self.args,self.args.train_file)
-            if not os.path.isdir(self.args.save_dir):
-                os.makedirs(self.args.save_dir)
-            with open(self.args.save_dir + '/' + 'word2id.pkl', 'wb') as f:
-                pickle.dump(self.word2id, f)
-            with open(self.args.save_dir + '/' + 'label2id.pkl', 'wb') as f:
-                pickle.dump(self.label2id, f)
-            with open(self.args.save_dir + '/' + 'id2label.pkl', 'wb') as f:
-                pickle.dump(self.id2label, f)
+        logging.info('processing data...')
+        self.word2id, self.id2word, self.label2id, self.id2label, self.max_len \
+            = process_data(self.args, self.args.train_file)
 
-        else:
-            with open(self.args.save_dir + '/' + 'word2id.pkl', 'rb') as f:
-                self.word2id = pickle.load(f)
-            with open(self.args.save_dir + '/' + 'id2label.pkl', 'rb') as f:
-                self.id2label = pickle.load(f)
-            with open(self.args.save_dir + '/' + 'label2id.pkl', 'rb') as f:
-                self.label2id = pickle.load(f)
-        self.train_iter, self.test_iter = load_data(self.args.train_file, self.args.test_file, self.word2id, self.label2id, self.args)
+        # save the vocab dict the vocab path.
+        if not os.path.isdir(self.args.vocab_path):
+            os.makedirs(self.args.vocab_path)
+        with open(self.args.vocab_path + '/' + 'word2id.pkl', 'wb') as f:
+            pickle.dump(self.word2id, f)
+        with open(self.args.vocab_path + '/' + 'label2id.pkl', 'wb') as f:
+            pickle.dump(self.label2id, f)
+        with open(self.args.vocab_path + '/' + 'id2label.pkl', 'wb') as f:
+            pickle.dump(self.id2label, f)
+
+        self.train_iter, self.test_iter = load_data(self.args.train_file, self.args.test_file, self.word2id,
+                                                    self.label2id, self.args)
         self.args.embed_num = len(self.word2id)
         self.args.class_num = len(self.id2label)
-        self.model = Model(self.args)
+        self.model = TextCNN(self.args)
 
         if self.args.snapshot is not None:
             logging.info('\nLoading model from %s...' % (self.args.snapshot))
@@ -54,7 +55,7 @@ class Trainer():
         train_loss, train_acc = 0., 0.
         self.model.train()
         flag = 0
-        for epoch in range(1, self.args.epochs+1):
+        for epoch in range(1, self.args.epochs + 1):
             if flag == 1: break
             for feature, target in self.train_iter:
                 feature = Variable(feature)
@@ -96,11 +97,12 @@ class Trainer():
                             continue
                     else:
                         if step - last_step >= self.args.early_stop:
-                            logging.info('\nEarly stop by %d steps.'% (self.args.early_stop))
+                            logging.info('\nEarly stop by %d steps.' % (self.args.early_stop))
                             flag = 1
                             break
                 if step % self.args.save_interval == 0:
                     self.save('last', step)
+                if step > 100: break
 
     def eval(self):
         self.model.eval()
@@ -125,25 +127,63 @@ class Trainer():
         return avg_loss, accuracy
 
     def save(self, save_prefix, steps):
-        if not os.path.isdir(self.args.save_dir):
-            os.makedirs(self.args.save_dir)
-
+        if not os.path.isdir(self.args.trained_model):
+            os.makedirs(self.args.trained_model)
         save_prefix = os.path.join(self.args.save_dir, save_prefix)
+        # with open(save_prefix + "/model.pkl", "wb") as fp:
+        #     cloudpickle.dump(self.model, fp)
         save_path = '%s_steps_%d.pt' % (save_prefix, 100)
         torch.save(self.model.state_dict(), save_path)
 
+class TextCNN(nn.Module):
+    def __init__(self, args):
+        super(TextCNN, self).__init__()
+        self.args = args
+
+        embed_num = args.embed_num
+        embed_dim = args.embed_dim
+        class_num = args.class_num
+        in_channels = 1
+        out_channels = args.kernel_num
+        kernel_sizes = [int(k) for k in args.kernel_sizes.split(',')]
+
+        self.embed = nn.Embedding(embed_num, embed_dim)
+        self.convs = nn.ModuleList(
+            [nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=(kernel_size, embed_dim)
+            )
+                for kernel_size in kernel_sizes])
+        self.dropout = nn.Dropout(args.dropout)
+        self.fc = nn.Linear(len(kernel_sizes) * out_channels, class_num)
+
+    def forward(self, x):
+        x = self.embed(x)
+        if self.args.static:
+            x = Variable(x)
+        x = x.unsqueeze(1)
+        x = [F.relu(conv(x)).squeeze(3) for conv in self.convs]
+        x = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]
+        x = torch.cat(x, 1)
+        x = self.dropout(x)
+        logit = self.fc(x)
+        return logit
+
 if __name__ == '__main__':
-    args = get_args()
-    if not os.path.isdir(args.logs):
-        os.makedirs(args.logs)
-    logname = args.logs + "/train.log"
+    args = train_args()
+    print_parameters(args)
+    if not os.path.isdir(args.log_dir):
+        os.makedirs(args.log_dir)
+    if not os.path.isdir(args.trained_model):
+        os.makedirs(args.trained_model)
+    logname = os.path.join(args.log_dir, "/train.log")
     logging.basicConfig(filename=logname, filemode='w', level=logging.DEBUG)
 
     trainer = Trainer(args)
-    with open(args.save_dir + '/' + 'config.pkl', 'wb') as f:
-        pickle.dump(args, f)
+    with open(os.path.join(args.trained_model, 'config.pkl'), 'wb') as f:
+        pickle.dump(args, f, protocol=pickle.HIGHEST_PROTOCOL)
     try:
         trainer.train()
     except KeyboardInterrupt:
         logging.warning('\nExiting from training early')
-

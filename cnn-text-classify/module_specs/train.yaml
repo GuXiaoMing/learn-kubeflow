@@ -3,6 +3,14 @@ id: f9b3dea7-48d2-4126-bd0c-f5c6588c4c29
 category: Machine Learning\Train
 description: Trains a TextCNN model in a supervised manner
 inputs:
+- name: Train data file
+  type: Dataset
+  connectable: True
+  description: Training data
+- name: Test data file
+  type: Dataset
+  connectable: True
+  description: Test data
 - name: Word embeddding dim
   default: 300
   type: Int
@@ -18,10 +26,6 @@ inputs:
   type: Float
   connectable: False
   description: the probability for dropout
-- name: Train data file
-  type: Dataset
-  connectable: True
-  description: Training data
 - name: Batch size
   default: 32
   type: Int
@@ -37,17 +41,11 @@ inputs:
   type: Int
   connectable: False
   description: how many steps to wait before testing
-- name: Test data file
-  type: Dataset
-  connectable: True
-  description: Test data
 - name: Label column number
-  default: 0
   type: String
   connectable: False
   description: Select the column that contains the label or outcome column
 - name: Text column number
-  default: 2
   type: String
   connectable: False
   description: Select the column that contains the Text or input column
@@ -56,12 +54,19 @@ outputs:
   type: Model
   connectable: True
   description: Trained learner
+- name: Vocab
+  type: Model
+  connectable: True
+  description: vocab for predict the sentence
 - name: Logs
   type: Model
   connectable: False
   description: the logs in training processing
 implementation:
   container:
+    meta:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: true
     conda:
       content:
         name: project_environment
@@ -77,10 +82,11 @@ implementation:
           - numpy==1.16.2
           - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
           - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
-          - git+https://github.com/Angeliacs/learn-kubeflow.git@chsi/cnn_text_classify#subdirectory=cnn-text-classify
+          - git
     command:
     - python
-    - trainer.py
+    - -m
+    - csmodel.trainer
     args:
     - -embed-dim
     - inputValue: Word embeddding dim
@@ -102,9 +108,11 @@ implementation:
     - inputValue: L2 regularization weight
     - -test-interval
     - inputValue: Test interval
-    - -save-dir
+    - -trained-model
     - outputPath: Trained model
-    - -logs
+    - -vocab-path
+    - outputPath: Vocab
+    - -log-dir
     - outputPath: Logs
 
     

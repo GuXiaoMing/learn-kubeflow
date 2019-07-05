@@ -5,8 +5,8 @@ import nltk
 from nltk.tokenize import word_tokenize
 import pyarrow.parquet as pq
 from azureml.studio.common.io.data_table_io import read_data_table
-from args_util import *
-from TextCNN import *
+from .args_util import *
+from .TextCNN import *
 import csv
 import logging
 import os
@@ -85,6 +85,3 @@ if __name__ == '__main__':
             words = word_tokenize(sentence)
             predictor.predict(words)
             w.write(str(predictor.predict(words)) + ',' + sentence + '\n')
-
-
-

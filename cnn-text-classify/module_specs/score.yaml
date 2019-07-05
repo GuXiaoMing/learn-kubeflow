@@ -3,29 +3,24 @@ id: f5793e3a-3b2a-485f-afb4-a00666a71b5f
 category: Machine Learning\Score
 description: Predict the classes through the trained TextCNN model
 inputs:
-- name: Predict data file
-  type: Dataset
-  connectable: True
-  description: predict data
-- name: Text column number
-  type: String
-  connectable: False
-  description: text column name
 - name: Model file
   type: Model
   connectable: True
-  description: the model file
+  description: the trained model file
+- name: Predict data
+  type: Dataset
+  connectable: True
+  description: predict data
 outputs:
 - name: Predict result
   type: Dataset
   connectable: True
   description: Predict result
-- name: Logs
-  type: Dataset
-  connectable: False
-  description: the logs in training processing
 implementation:
   container:
+    meta:
+      baseDockerImage: mcr.microsoft.com/azureml/base-gpu:intelmpi2018.3-cuda10.0-cudnn7-ubuntu16.04
+      gpuSupport: true
     conda:
       content:
         name: project_environment
@@ -41,20 +36,33 @@ implementation:
           - numpy==1.16.2
           - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
           - https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
-          - git+https://github.com/Angeliacs/learn-kubeflow.git@chsi/cnn_text_classify#subdirectory=cnn-text-classify
     command:
     - python
-    - predictor.py
+    - -m
+    - csmodel.predictor_updated_only_model
     args:
-    - -predict-file
-    - inputValue: Predict data file
-    - -text-column
-    - inputValue: Text column number
-    - -save-dir
+    - -trained-model
     - inputValue: Model file
-    - -predict-result-file
+    - -predict-path
+    - inputValue: Predict data
+    - -predict-result-path
     - outputPath: Predict result
-    - -logs
-    - outputPath: Logs
-
+  serving:
+    sameCondaWithContainer: true
+    pythonServingClass:
+      moduleName: predictor
+      className: DataPreprocessor
+      init:
+        name: __init__
+        inputs:
+        - name: vocab_path
+          type: ModelDirectory
+      run:
+        name: process
+        inputs:
+        - name: data_frame
+          type: DataFrame #
+        outputs:
+        - name: data_frame
+          type: DataFrame #d
 
