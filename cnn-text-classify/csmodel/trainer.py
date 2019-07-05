@@ -128,7 +128,7 @@ class Trainer():
     def save(self, save_prefix, steps):
         if not os.path.isdir(self.args.trained_model):
             os.makedirs(self.args.trained_model)
-        save_prefix = os.path.join(self.args.save_dir, save_prefix)
+        save_prefix = os.path.join(self.args.trained_model, save_prefix)
         # with open(save_prefix + "/model.pkl", "wb") as fp:
         #     cloudpickle.dump(self.model, fp)
         save_path = '%s_steps_%d.pt' % (save_prefix, 100)
