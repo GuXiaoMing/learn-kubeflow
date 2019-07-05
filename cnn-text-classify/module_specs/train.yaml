@@ -1,4 +1,4 @@
-name: Multiclass TextCNN Classification Train Model
+name: TextCNN Train
 id: f9b3dea7-48d2-4126-bd0c-f5c6588c4c29
 category: Machine Learning\Train
 description: Trains a TextCNN model in a supervised manner
