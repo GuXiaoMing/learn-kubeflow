@@ -1,4 +1,4 @@
-name: Multiclass TextCNN Classification Train Model
+name: TextCNN Train Model
 id: f9b3dea7-48d2-4126-bd0c-f5c6588c4c29
 category: Machine Learning\Train
 description: Trains a TextCNN model in a supervised manner
@@ -11,21 +11,21 @@ inputs:
   type: Dataset
   connectable: True
   description: Test data
-- name: Word embeddding dim
+- name: Word embedding dim
   default: 300
   type: Int
   connectable: False
-  description: the dimention of word embeddings
+  description: The dimention of word embeddings
 - name: Kernel num
   default: 128
   type: Int
   connectable: False
-  description: number of each kind of kernel
+  description: Number of each kind of kernel
 - name: Dropout
   default: 0.5
   type: Float
   connectable: False
-  description: the probability for dropout
+  description: The probability for dropout
 - name: Batch size
   default: 32
   type: Int
@@ -40,12 +40,12 @@ inputs:
   default: 100
   type: Int
   connectable: False
-  description: how many steps to wait before testing
-- name: Label column number
+  description: How many steps to wait before testing
+- name: Label column name
   type: String
   connectable: False
   description: Select the column that contains the label or outcome column
-- name: Text column number
+- name: Text column name
   type: String
   connectable: False
   description: Select the column that contains the Text or input column
@@ -57,11 +57,11 @@ outputs:
 - name: Vocab
   type: Model
   connectable: True
-  description: vocab for predict the sentence
+  description: Vocab for predict the sentence
 - name: Logs
   type: Model
-  connectable: False
-  description: the logs in training processing
+  connectable: True
+  description: The logs in training processing
 implementation:
   container:
     meta:
@@ -89,7 +89,7 @@ implementation:
     - csmodel.trainer
     args:
     - -embed-dim
-    - inputValue: Word embeddding dim
+    - inputValue: Word embedding dim
     - -kernel-num
     - inputValue: Kernel num
     - -dropout
@@ -99,9 +99,9 @@ implementation:
     - -test-file
     - inputValue: Test data file
     - -label-column
-    - inputValue: Label column number
+    - inputValue: Label column name
     - -text-column
-    - inputValue: Text column number
+    - inputValue: Text column name
     - -batch-size
     - inputValue: Batch size
     - -l2

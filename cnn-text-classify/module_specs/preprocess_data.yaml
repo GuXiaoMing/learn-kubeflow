@@ -15,7 +15,7 @@ outputs:
 - name: Transformed data
   type: Dataset
   connectable: True
-  description: Transformed data
+  description: Processed data
 implementation:
   container:
     meta:
@@ -47,4 +47,4 @@ implementation:
     - -input-vocab
     - inputValue: Input vocab
     - -output-data
-    - outputPath: Transformed data
+    - outputPath: Processed data

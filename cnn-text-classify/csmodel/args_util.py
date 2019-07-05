@@ -83,7 +83,7 @@ def train_args():
                         help='disable the gpu')
 
 
-    args = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
     args.cuda = args.cuda and torch.cuda.is_available()
     now_time = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     # args.save_dir = os.path.join(args.save_dir, now_time)
@@ -99,7 +99,7 @@ def predict_args():
                         help='the test dataset path')
     parser.add_argument('-predict-result-path', type=str, default="debug_out/predict_res/" ,
                         help='the predicted output path')
-    args = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
     return args
 
 def preprocess_args():
@@ -111,7 +111,7 @@ def preprocess_args():
                         help='the vocab path')
     parser.add_argument('-output-data', type=str, default='debug_out/word_id/',
                         help='the output data path')
-    args = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
     return args
 
 def print_parameters(args):

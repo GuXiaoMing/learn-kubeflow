@@ -1,16 +1,16 @@
-name: Multiclass TextCNN Classification Predict Model
+name: TextCNN Predict Model
 id: f5793e3a-3b2a-485f-afb4-a00666a71b5f
 category: Machine Learning\Score
 description: Predict the classes through the trained TextCNN model
 inputs:
-- name: Model file
+- name: Trained model
   type: Model
   connectable: True
-  description: the trained model file
+  description: The trained model file
 - name: Predict data
   type: Dataset
   connectable: True
-  description: predict data
+  description: Predict data
 outputs:
 - name: Predict result
   type: Dataset
@@ -43,7 +43,7 @@ implementation:
     - csmodel.predictor_updated_only_model
     args:
     - -trained-model
-    - inputValue: Model file
+    - inputValue: Trained model
     - -predict-path
     - inputValue: Predict data
     - -predict-result-path
