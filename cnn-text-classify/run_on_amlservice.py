@@ -84,9 +84,9 @@ def create_pipeline_steps(compute_name):
 
 
     # Assign parameters
-    train.params['Label column number'].assign('label')
-    train.params['Text column number'].assign('text')
-    train.params['Word embeddding dim'].assign(300)
+    train.params['Label column name'].assign('label')
+    train.params['Text column name'].assign('text')
+    train.params['Word embedding dim'].assign(300)
     # train.params['Kernel size'].assign('3,4,5')
     train.params['Kernel num'].assign(256)
     train.params['Dropout'].assign(0.5)
@@ -97,8 +97,8 @@ def create_pipeline_steps(compute_name):
     preprocess_module.inputs['Input vocab'].connect(train.outputs['Vocab'])
     preprocess_module.inputs['Input text'].connect(import_data_test.outputs['9e5eade8_fa58_4a3b_9c51_d9b3f704b123'])
 
-    score.inputs['Model file'].connect(train.outputs['Trained model'])
-    score.inputs['Predict data'].connect(preprocess_module.outputs["Transformed data"])
+    score.inputs['Trained model'].connect(train.outputs['Trained model'])
+    score.inputs['Predict data'].connect(preprocess_module.outputs["Processed data"])
 
     pipeline_step_list = [
         PipelineStep(import_data, run_config=run_config_import_train_data),

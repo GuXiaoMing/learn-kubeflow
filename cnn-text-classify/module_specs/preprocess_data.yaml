@@ -12,7 +12,7 @@ inputs:
   connectable: True
   description: The vocabulary file
 outputs:
-- name: Transformed data
+- name: Processed data
   type: Dataset
   connectable: True
   description: Processed data
