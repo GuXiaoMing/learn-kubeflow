@@ -1,6 +1,6 @@
 name: TextCNN Predict Model
 id: f5793e3a-3b2a-485f-afb4-a00666a71b5f
-category: Machine Learning\Score
+category: Machine Learning\Evaluate
 description: Predict the classes through the trained TextCNN model
 inputs:
 - name: Trained model

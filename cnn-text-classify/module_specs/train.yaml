@@ -55,7 +55,7 @@ outputs:
   connectable: True
   description: Trained learner
 - name: Vocab
-  type: Model
+  type: Dataset
   connectable: True
   description: Vocab for predict the sentence
 implementation:

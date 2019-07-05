@@ -31,31 +31,24 @@ class Trainer():
         with open(self.args.vocab_path + '/' + 'id2label.pkl', 'wb') as f:
             pickle.dump(self.id2label, f)
 
-
-
         # Dump data_type.json as a work around until SMT deploys
         dct = {
-            "Id": "ILearnerDotNet",
-            "Name": "ILearner .NET file",
-            "ShortName": "Model",
-            "Description": "A .NET serialized ILearner",
+            "Id": "Dataset",
+            "Name": "Dataset .NET file",
+            "ShortName": "Dataset",
+            "Description": "A serialized DataTable supporting partial reads and writes",
             "IsDirectory": False,
             "Owner": "Microsoft Corporation",
-            "FileExtension": "ilearner",
+            "FileExtension": "dataset.parquet",
             "ContentType": "application/octet-stream",
             "AllowUpload": False,
-            "AllowPromotion": False,
-            "AllowModelPromotion": True,
+            "AllowPromotion": True,
+            "AllowModelPromotion": False,
             "AuxiliaryFileExtension": None,
             "AuxiliaryContentType": None
         }
         with open(os.path.join(self.args.vocab_path, 'data_type.json'), 'w') as f:
             json.dump(dct, f)
-
-        # Dump data.ilearner as a work around until data type design
-        visualization = os.path.join(self.args.vocab_path, "data.ilearner")
-        with open(visualization, 'w') as file:
-            file.writelines('{}')
 
 
         self.train_iter, self.test_iter = load_data(self.args.train_file, self.args.test_file, self.word2id,
