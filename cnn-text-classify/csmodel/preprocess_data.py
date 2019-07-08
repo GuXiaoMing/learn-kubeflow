@@ -18,8 +18,11 @@ class DataPreprocessor(object):
         # with open(self.vocab_path + '/' + 'word2id.pkl', 'rb') as f:
         #     self.word2id = pickle.load(f)
         #for test
-        with open('word2id.pkl', 'rb') as f:
+        module_path = os.path.dirname(os.path.abspath(__file__))
+        dict_file = os.path.join(module_path, "word2id.pkl")
+        with open(dict_file, 'rb') as f:
             self.word2id = pickle.load(f)
+
 
     def process(self, data_frame: pd.DataFrame):
         word_id_list = []
