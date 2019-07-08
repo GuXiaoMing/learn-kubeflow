@@ -1,5 +1,5 @@
-name: TextCNN Word to Id
-id: 89b03051-b9d1-4a79-8c8c-f627290b875a
+name: TextCNN Word to Id - Ignore Vocab for Test
+id: 93660892-cb86-4513-9c8f-b6506d547998
 category: Machine Learning\Preprocess
 description: Transform Word to Id
 inputs:
