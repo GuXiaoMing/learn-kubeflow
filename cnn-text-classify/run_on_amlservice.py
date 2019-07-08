@@ -118,4 +118,4 @@ if __name__ == '__main__':
     )
     compute_name = TextCNNConstants.COMPUTE_NAME
     pipeline_steps = create_pipeline_steps(compute_name)
-    run_pipeline(steps=pipeline_steps, experiment_name='cnn-text-classify_new', workspace=workspace)
+    run_pipeline(steps=pipeline_steps, experiment_name='ds_cnn-text-classify', workspace=workspace)
