@@ -75,6 +75,7 @@ implementation:
           - alghost==0.0.53
           - pyarrow==0.12.1
           - nltk==3.4
+          - cloudpickle==1.2.1
           - numpy==1.16.2
           - pyyaml==5.1.1
           - https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
