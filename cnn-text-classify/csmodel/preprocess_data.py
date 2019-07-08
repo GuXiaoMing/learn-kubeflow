@@ -15,10 +15,11 @@ class DataPreprocessor(object):
         self.vocab_path = vocab_path
         self.rule = re.compile(r"[^\u4e00-\u9fa5]")
         self.cut = word_tokenize
-        with open(self.vocab_path + '/' + 'word2id.pkl', 'rb') as f:
+        # with open(self.vocab_path + '/' + 'word2id.pkl', 'rb') as f:
+        #     self.word2id = pickle.load(f)
+        #for test
+        with open('word2id.pkl', 'rb') as f:
             self.word2id = pickle.load(f)
-        # with open(self.vocab_path + '/' + 'id2label.pkl', 'rb') as f:
-        #     self.id2label = pickle.load(f)
 
     def process(self, data_frame: pd.DataFrame):
         word_id_list = []
