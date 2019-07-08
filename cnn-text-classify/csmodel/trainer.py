@@ -14,6 +14,8 @@ import torch
 import torch.nn as nn
 import json
 
+import cloudpickle
+
 class Trainer():
     def __init__(self, args):
         self.args = args
@@ -149,12 +151,18 @@ class Trainer():
     def save(self, save_prefix, steps):
         if not os.path.isdir(self.args.trained_model):
             os.makedirs(self.args.trained_model)
-        save_prefix = os.path.join(self.args.trained_model, save_prefix)
-        # with open(save_prefix + "/model.pkl", "wb") as fp:
-        #     cloudpickle.dump(self.model, fp)
-        save_path = '%s_steps_%d.pt' % (save_prefix, 100)
-        torch.save(self.model.state_dict(), save_path)
+        save_path = os.path.join(self.args.trained_model, 'model.pkl')
+        yaml_path = os.path.join(self.args.trained_model, 'model_spec.yml')
+        with open(save_path, "wb") as fp:
+            cloudpickle.dump(self.model, fp)
+        print("Model saved")
 
+        import yaml
+
+        file = open(yaml_path, "w")
+        data = {'model_file_path': save_path, 'flavor': {'framework': 'Pytorch'}}
+        yaml.dump(data, file)
+        file.close()
 
         # Dump data_type.json as a work around until SMT deploys
         dct = {
